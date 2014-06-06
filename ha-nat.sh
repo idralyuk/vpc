@@ -171,7 +171,7 @@ aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --source-dest-check
 log "Source Destination check disabled for $INSTANCE_ID."
 
 # Route53 Hosted Zone can be provided as an optional argument, so that we can register this instance's private ip in DNS.
-# 
+# IAM_ROLE should have route53:ListHostedZones permission on * resource and route53:* on arn:aws:route53:::hostedzone/<ZONE_ID>
 if [ $# -eq 1 ]; then
 	ROUTE53_ZONE=$1
 	cli53 rrcreate $ROUTE53_ZONE nat-$AVAILABILITY_ZONE A $PRIVATE_IP --ttl 60 --replace &&
