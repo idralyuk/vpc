@@ -132,9 +132,9 @@ MAIN_RT=`aws ec2 describe-route-tables --query 'RouteTables[*].RouteTableId' --f
 	
 log "HA NAT configuration parameters: Instance ID=$INSTANCE_ID, Region=$REGION, Availability Zone=$AVAILABILITY_ZONE, VPC=$VPC_ID"
 
-# Get list of subnets in same VPC and AZ that have tag network=private
+# Get list of subnets in same VPC and AZ that have tag Network=Private
 PRIVATE_SUBNETS="`aws ec2 describe-subnets --query 'Subnets[*].SubnetId' \
---filters Name=availability-zone,Values=$AVAILABILITY_ZONE Name=vpc-id,Values=$VPC_ID Name=state,Values=available Name=tag:network,Values=private`"
+--filters Name=availability-zone,Values=$AVAILABILITY_ZONE Name=vpc-id,Values=$VPC_ID Name=state,Values=available Name=tag:Network,Values=Private`"
 	# If no private subnets found, exit out
 	if [ -z "$PRIVATE_SUBNETS" ]; then
 		die "No private subnets found to modify for HA NAT."
