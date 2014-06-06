@@ -122,6 +122,9 @@ AVAILABILITY_ZONE=`curl --retry 3 --retry-delay 0 --silent --fail $II_URI | grep
 # Set Instance ID from metadata
 INSTANCE_ID=`curl --retry 3 --retry-delay 0 --silent --fail $II_URI | grep instanceId | awk -F\" '{print $4}'`
 
+# Set Private IP from metadata
+PRIVATE_IP=`curl --retry 3 --retry-delay 0 --silent --fail $II_URI | grep privateIp | awk -F\" '{print $4}'`
+
 # Set VPC_ID of Instance
 VPC_ID=`aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[*].Instances[*].VpcId'` ||
 	die "Unable to determine VPC ID for instance."
@@ -166,6 +169,13 @@ fi
 # Turn off source / destination check
 aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --source-dest-check "{\"Value\": false}" &&
 log "Source Destination check disabled for $INSTANCE_ID."
+
+# Route53 Hosted Zone can be provided as an optional argument, so that we can register this instance's private ip in DNS.
+if [ $# -eq 1 ]; then
+	ROUTE53_ZONE=$1
+	cli53 rrcreate $ROUTE53_ZONE nat-$AVAILABILITY_ZONE A $PRIVATE_IP --ttl 60 --replace &&
+	log "DNS Record created in $ROUTE53_ZONE (nat-$AVAILABILITY_ZONE -> $PRIVATE_IP)."
+fi
 
 log "Configuration of HA NAT complete."
 exit 0
