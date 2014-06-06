@@ -102,7 +102,7 @@ iptables -n -t nat -L POSTROUTING | log
 log "Configuration of NAT/PAT complete."
 
 # Upgrade AWS CLI to latest version
-easy_install --upgrade awscli && log "AWS CLI Upgraded Successfully. Beginning HA NAT configuration..."
+easy_install --upgrade awscli cli53 && log "AWS CLI Upgraded Successfully. Beginning HA NAT configuration..."
 
 # Set CLI Output to text
 export AWS_DEFAULT_OUTPUT="text"
@@ -171,6 +171,7 @@ aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --source-dest-check
 log "Source Destination check disabled for $INSTANCE_ID."
 
 # Route53 Hosted Zone can be provided as an optional argument, so that we can register this instance's private ip in DNS.
+# 
 if [ $# -eq 1 ]; then
 	ROUTE53_ZONE=$1
 	cli53 rrcreate $ROUTE53_ZONE nat-$AVAILABILITY_ZONE A $PRIVATE_IP --ttl 60 --replace &&
